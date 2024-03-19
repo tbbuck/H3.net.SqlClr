@@ -1,0 +1,13 @@
+This project is an extension of the H3.net (c) Ken March at https://github.com/pocketken
+
+Files with significant changes by Thomas Buck:
+ - /Algorithms/Polyfill.cs
+ - /Extensions/H3GeometryExtensions.cs
+ - /Model/Latlng.cs
+ - /H3Index.cs <- not sure whether this qualifies as "significant?"
+ - /Utils.cs <- ditto
+ - Various other files have quick fixes for syntax not supported in net481
+
+New files:
+ - /HashCode.cs - see license header in file
+ - /SqlClrWrapper.cs - a whole file developed by Thomas alone!
