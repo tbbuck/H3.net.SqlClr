@@ -51,7 +51,8 @@ public static class Polyfill {
     /// <param name="testMode">Specify which <see cref="VertexTestMode"/> to use when checking
     /// index vertex containment.  Defaults to <see cref="VertexTestMode.Center"/></param>.
     /// <returns>Indices that are contained within polygon</returns>
-    public static IEnumerable<H3Index> Fill(this SqlGeography polygon, int resolution, VertexTestMode testMode = VertexTestMode.Center) {
+    public static IEnumerable<H3Index> Fill(this SqlGeography polygon, int resolution, VertexTestMode testMode = VertexTestMode.Center)
+    {
         if (polygon.STIsEmpty()) return Enumerable.Empty<H3Index>();
 
         //is this an issue for SqlGeography? If in doubt, yes! In practise: wait until it becomes a problem.
@@ -60,7 +61,7 @@ public static class Polyfill {
 
         Dictionary<ulong, bool> searched = new();
         Stack<H3Index> toSearch = new();
-        toSearch.Push( polygon.EnvelopeCenter().ToH3Index(resolution));
+        toSearch.Push( polygon.STPointN(1).ToH3Index(resolution));
 
         return testMode switch {
             VertexTestMode.All => FillUsingAllVertices(polygon, toSearch, searched),
@@ -83,7 +84,8 @@ public static class Polyfill {
         while (toSearch.Count != 0) {
             var index = toSearch.Pop();
 
-            foreach (var neighbour in index.GetNeighbours()) {
+            foreach (var neighbour in index.GetNeighbours())
+            {
                 if (searched.ContainsKey(neighbour.Value)) continue;
                 searched[neighbour.Value] = true;
 
