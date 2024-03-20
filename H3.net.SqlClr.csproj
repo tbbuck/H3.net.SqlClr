@@ -16,7 +16,7 @@ Should in theory build on Windows, Linux, and MacOs. </Description>
     <Copyright>Thomas Buck</Copyright>
     <Version>4.0.0</Version>
     <PackageTags>h3,sqlclr,hexbin,geospatial,spatial,spatial-indexing,hexagon</PackageTags>
-    <PackageId>MooUnlimited.H3.net.SqlClr.4.0.0.2</PackageId>
+    <PackageId>H3.net.SqlClr</PackageId>
     <Company>Moo Unlimited</Company>
     <PackageProjectUrl>https://github.com/tbbuck/H3.net.SqlClr</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>

@@ -55,20 +55,37 @@ public static class Polyfill {
     {
         if (polygon.STIsEmpty()) return Enumerable.Empty<H3Index>();
 
-        //is this an issue for SqlGeography? If in doubt, yes! In practise: wait until it becomes a problem.
+        // is transMeridian an issue for SqlGeography? If in doubt, yes! In practise: wait until it becomes a problem.
         // var isTransMeridian = polygon.IsTransMeridian();
         // var testPoly = isTransMeridian ? SplitGeometry(polygon) : polygon;
 
-        Dictionary<ulong, bool> searched = new();
-        Stack<H3Index> toSearch = new();
-        toSearch.Push( polygon.STPointN(1).ToH3Index(resolution));
+        //HashSets would be nice - but incompatible with sqlclr, so dictionary it is :-/
+        Dictionary<H3Index, bool> foundIndices = new Dictionary<H3Index, bool>();
+        Dictionary<ulong, bool> searched = new Dictionary<ulong, bool>();
+        Stack<H3Index> toSearch;
 
-        return testMode switch {
-            VertexTestMode.All => FillUsingAllVertices(polygon, toSearch, searched),
-            VertexTestMode.Any => FillUsingAnyVertex(polygon, toSearch, searched),
-            VertexTestMode.Center => FillUsingCenterVertex(polygon, toSearch, searched),
-            _ => throw new ArgumentOutOfRangeException(nameof(testMode), "invalid vertex test mode")
-        };
+        //look through polygon geometries one-by-one, otherwise may end up with skipped regions
+        var nGeometries = polygon.STNumGeometries().Value;
+        for (var gi = 0; gi < nGeometries; gi++)
+        {
+            var innerGeometry = polygon.STGeometryN(gi + 1); //the +1 because STGeometryN is 1-based (unlike e.g. arrays which are 0-based)
+
+            toSearch = new Stack<H3Index>();
+            toSearch.Push( innerGeometry.STPointN(1).ToH3Index(resolution));
+
+            foreach (var foundIndex in
+                     testMode switch {
+                         VertexTestMode.All => FillUsingAllVertices(polygon, toSearch, searched),
+                         VertexTestMode.Any => FillUsingAnyVertex(polygon, toSearch, searched),
+                         VertexTestMode.Center => FillUsingCenterVertex(polygon, toSearch, searched),
+                         _ => throw new ArgumentOutOfRangeException(nameof(testMode), "invalid vertex test mode")
+                     })
+            {
+                foundIndices[foundIndex] = true;
+            }
+        }
+
+        return new List<H3Index>(foundIndices.Keys);
     }
 
     /// <summary>
